@@ -1,23 +1,30 @@
 import Header from "../Components/Header/Header"
 import Guitar from "../Components/Guitar/Guitar"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import { db } from "../data/db"
 
 function App() {
 
+  const initialCart = () => {
+    const localStorageCart = localStorage.getItem("cart")
+
+    return localStorageCart ? JSON.parse(localStorageCart) : []
+  }
+
   //cuando realizamos una consulta a una API podemos inicializar el estado con un array vacio y usar un useEffect para traer los datos, pero en este ejemplo seteamos el estado con el archibo db ya que lo tenemos local
-  const [data, setData] = useState(db)
-  const [cart, setCart] = useState([])
+  const [data] = useState(db)
+  const [cart, setCart] = useState(initialCart)
 
   const MIN_ITEMS = 1
   const MAX_ITEMS = 5;
 
   //Podemos usar un useEffect para traer los datos de la base de datos si es desde una api seria de la mejor forma
-  // useEffect(() => {
-  //   setData(db)
-  // }, [])
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart))
+  }, [cart])
+  
   function addToCart(item) {
     
     const itemExists = cart.findIndex((guitar) => guitar.id === item.id)
@@ -71,6 +78,15 @@ function App() {
   }
 
 
+  function clearCart() {
+    setCart([])
+  }
+
+  // function saveLocalStorage() {
+  //   localStorage.setItem("cart", JSON.stringify(cart))
+  // }
+
+
   return (
     <>
       <Header
@@ -78,6 +94,7 @@ function App() {
         removeFromCart={removeFromCart}
         incrementQuantity={incrementQuantity}
         decrementQuantity={decrementQuantity}
+        clearCart={clearCart}
       />
 
     <main className="container-xl mt-5">
